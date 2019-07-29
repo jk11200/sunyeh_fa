@@ -28,18 +28,8 @@
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<form onkeypress="if(enter_pressed(event)){ formSubmit();return false; }">
-				<div class="input-group login-userinput">
-					<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-					<input id="txtUser" type="text" class="form-control" name="username" placeholder="使用者帳號">
-				</div>
-				<div class="input-group">
-					<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
-					<input  id="txtPassword" type="password" class="form-control" name="password" placeholder="密碼">
-					<span id="showPassword" class="input-group-btn">
-					<button class="btn btn-default reveal" type="button"><i class="glyphicon glyphicon-eye-open"></i></button>
-					</span>  
-				</div>
-				<button class="btn btn-primary btn-block login-button" type="button" href="javascript:void();" onclick="formSubmit()" ><i class="glyphicon glyphicon-log-in"></i> 登 入 系 統 </button>
+	<button class="btn btn-primary btn-block login-button" type="button" href="javascript:void();" 
+	onclick="location.href='https://192.168.1.99:433/MagicScripts/MGrqispi.dll?appname=emis_fa&prgname=Login&arguments=,-AA,-AW20190614500" ><i class="glyphicon glyphicon-log-in"></i> 登 入 系 統 </button>
 				<!-- 
 				<div class="checkbox login-options">
 					<label><input type="checkbox"/> Remember Me</label>
@@ -60,7 +50,7 @@
 
 function formSubmit()
   {
-  VerifyLogin(document.getElementById("txtUser").value,document.getElementById("txtPassword").value,'<!$MG_InventoryNo>','<!$MG_Type>','<!$MG_CTL_NO>');  
+ 
   }
   
 </script>
