@@ -1,0 +1,346 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="big5">
+  <meta http-equiv="expires" content="Mon,01 Jan 2007 00:00:00 GMT">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>財產盤點-QR Code刷入作業</title>
+
+  	<link type="text/css" rel="stylesheet" href="./emis_fa/bootstrap/3.3.7/css/bootstrap.min.css">	
+	<link type="text/css" rel="stylesheet" href="./emis_fa/css/docs.css">
+	
+	<!--<link type="text/css" rel="stylesheet" href="./emis_fa/css/docs.css">-->
+
+  <style>
+	<!$MG_Style_Body>
+    
+    h1 {
+      margin: 10px 0;
+      font-size: 40px;
+    }
+
+    #loadingMessage {
+      text-align: center;
+      padding: 40px;
+      background-color: #eee;
+    }
+
+    #canvas {
+      width: 100%;
+    }
+
+    #output {
+      margin-top: 20px;
+      background: #eee;
+      padding: 10px;
+      padding-bottom: 0;
+    }
+
+    #output div {
+      padding-bottom: 10px;
+      word-wrap: break-word;
+    }
+
+    #noQRFound {
+      text-align: center;
+    }
+  </style>
+
+<script src="./emis_fa/js/common.js"></script>  
+
+</head>
+
+<body>
+<input type="text" id="CTL_NO" style="display:none" value="<!$MG_CTL_NO>">
+<input type="text" id="Inventory_NO" style="display:none" value="<!$MG_Inventory_NO>">
+
+
+
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+   <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" 
+         data-target="#menu-navbar-collapse">
+         <span class="sr-only">Change</span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#"><!$MG_Navbar_brand></a>
+	</div>
+   
+   <div class="collapse navbar-collapse" id="menu-navbar-collapse">
+      <ul class="nav navbar-nav">
+         <!$MG_Navbar_1>
+         <!$MG_Navbar_2>
+		 <!$MG_Navbar_3>
+		 <!$MG_Navbar_4>
+		 <!$MG_Navbar_5>
+		 <!$MG_Navbar_6>
+      </ul>
+   </div>
+</nav>
+
+
+  <h1 align="center">請掃描資產 QR Code</h1>
+  
+  
+  <div id="loadingMessage"> 無法取得相機! (請確認你的裝置有無相機功能)</div>
+  <canvas id="canvas" hidden></canvas>
+  <div id="output" hidden>
+    <div id="outputMessage">無 QR code.</div>
+    <div hidden><b>Data:</b> <span id="outputData"></span></div>
+  </div>
+  
+<!--
+  「data-backdrop="static"」 鎖定背景，點擊背景時不自動關閉視窗
+  「fade」 淡入、淡出的轉場效果
+  「modal-lg」視窗大小，如modal-lg、modal-md、modal-sm
+  「data-dismiss="modal"」 關閉視窗
+  「data-keyboard="true"」 是否用ESC鍵關閉，預設為true
+-->
+<div id="ErrorModal" class="modal fade"  tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="NoItemModalLabel" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-lg" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+		<h1>
+        <div class="modal-title ">
+          標題列
+        </div>
+		</h1>
+      </div>
+	  <h2>
+      <div class="modal-body" >
+         內容
+      </div>
+	  </h2>
+      <div class="modal-footer" >
+        <button type="button" class="btn btn-default" data-dismiss="modal">　確　定　</button>
+        
+      </div>
+    </div>
+  </div>
+</div>  
+
+<div id="ItemModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ItemModalLabel" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="ItemModalLabel">盤點數量輸入</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="Item-no" class="control-label">產品編號:</label>
+                        <type="text" class="form-control" id="Item-no">
+                    </div>
+                    <div class="form-group">
+                        <label for="qty-text" class="control-label" ">盤點數量輸入:</label>
+                        <input type="number" placeholder="請輸入盤點數量" step="1" min="0" id="qty" pattern="[0-9]*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="submitForm" href="#" onclick="writeQty(codeResult,qty.value);">　確　定　</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">　取　消　</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="./emis_fa/js/jquery-3.4.0.min.js"></script>  
+<script src="./emis_fa/bootstrap/3.3.7/js/bootstrap.min.js"></script>  
+<script src="./emis_fa/js/jsQR.js"></script>  
+  
+  <script>
+  window.history.forward(1);
+    var video = document.createElement("video");
+    var canvasElement = document.getElementById("canvas");
+    var canvas = canvasElement.getContext("2d");
+    var loadingMessage = document.getElementById("loadingMessage");
+    var outputContainer = document.getElementById("output");
+    var outputMessage = document.getElementById("outputMessage");
+    var outputData = document.getElementById("outputData");
+	
+	var verifyxmlhttp
+	var codeResult
+	var lastcode ='';
+	var checktype
+
+    function drawLine(begin, end, color) {
+      canvas.beginPath();
+      canvas.moveTo(begin.x, begin.y);
+      canvas.lineTo(end.x, end.y);
+      canvas.lineWidth = 4;
+      canvas.strokeStyle = color;
+      canvas.stroke();
+    }
+
+    // Use facingMode: environment to attemt to get the front camera on phones
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+      
+
+	  video.srcObject = stream;
+      video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
+	  video.play();
+      requestAnimationFrame(tick);
+    });
+
+    function tick() {
+      loadingMessage.innerText = "...載入相機..."
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        loadingMessage.hidden = true;
+        canvasElement.hidden = false;
+        outputContainer.hidden = false;
+        canvasElement.height =  Math.max(100,video.videoHeight);
+        canvasElement.width =  Math.max(100,video.videoWidth);
+        canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+        var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+        var code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+        if (code) {
+          drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF3B58");
+          drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
+          drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF3B58");
+          drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF3B58");
+          outputMessage.hidden = true;
+          outputData.parentElement.hidden = false;
+          outputData.innerText = code.data;
+		  codeResult = code.data;
+		  
+		  if(codeResult!=lastcode)
+		  {
+		  codecheck(codeResult);
+		  lastcode=codeResult;
+		  }
+		  
+        } else {
+          outputMessage.hidden = false;
+          outputData.parentElement.hidden = true;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+	
+	
+	function codecheck(qrcode)
+	{
+	verifyxmlhttp=GetXmlHttpObject();
+	if (verifyxmlhttp==null) {return;}
+	var url=PRG_URL()+"codecheck&arguments=-A"+document.getElementById("CTL_NO").value+",-A"+qrcode;
+	verifyxmlhttp.onreadystatechange=LogonverifystateChanged;
+	verifyxmlhttp.open("GET",url,true);	//async request
+	verifyxmlhttp.send(null); 	
+	}	
+	
+	function LogonverifystateChanged()
+	{
+		if (verifyxmlhttp.readyState==4)
+		{
+			if (verifyxmlhttp.status == 200) 
+			{
+				if (verifyxmlhttp.responseText=='error_relogin')
+				{
+				checktype='登入已逾時,請重新登入!'
+				$('#ErrorModal').modal('show');				    
+				}
+				else if (verifyxmlhttp.responseText=='error_inventory_notexist')
+				{
+				checktype='作業盤點單號不存在!'
+				$('#ErrorModal').modal('show');				    
+				}
+				else if (verifyxmlhttp.responseText=='error_inventory_close')
+				{
+				checktype='作業盤點單號已完成或已確認!'
+				$('#ErrorModal').modal('show');				    
+				}
+				else if (verifyxmlhttp.responseText=='error_user_notexist')
+				{
+				checktype='登入人員不在盤點人員清單中!'
+				$('#ErrorModal').modal('show');				    
+				}
+				else if (verifyxmlhttp.responseText=='error_code_notexist')
+				{
+				checktype='盤點單中無此財產管制編號!'
+				$('#ErrorModal').modal('show');				    
+				}
+				else if (verifyxmlhttp.responseText=='error_second_already')
+				{
+				checktype='登入執行初盤作業盤作業,但該財產管制編號已有複盤記錄!'
+				$('#ErrorModal').modal('show');				    
+				}				
+				else if (verifyxmlhttp.responseText=='error_first_notconfirm')
+				{
+				checktype='登入執行複盤作業,但該財產管制編號未有初盤記錄!'
+				$('#ErrorModal').modal('show');				    
+				}				
+				else if (verifyxmlhttp.responseText=='QtyMoreThenOne')
+				{		
+				$('#ItemModal').modal('show');				    
+				}
+				else if (verifyxmlhttp.responseText=='QtyOne')
+				{
+				checktype='帳載數量為1,自動完成盤點記錄!'
+				$('#ErrorModal').modal('show');	
+				setTimeout(function(){$('#ErrorModal').modal('hide')},2000);				
+				}
+			}
+		}		
+	}	
+	
+	function writeQty(qrcode,qty)
+	{ 
+    	verifyxmlhttp=GetXmlHttpObject();
+		if (verifyxmlhttp==null) {return;}		
+		var url=PRG_URL()+"WriteQty&arguments=-A"+document.getElementById("CTL_NO").value+",-A"+qrcode+",-A"+qty;
+		verifyxmlhttp.open("GET",url,true);	//async request
+		verifyxmlhttp.send(null);
+		$("#ItemModal").modal('hide');
+	}
+	
+    $('#ErrorModal').on('show.bs.modal', function (event) {
+		video.pause();
+		document.getElementById("canvas").style.display="none";
+		var modal = $(this)
+        modal.find('.modal-title').text(codeResult)
+		modal.find('.modal-body').text(checktype+'')
+    })
+	
+    $('#ItemModal').on('show.bs.modal', function (event) {
+		document.getElementById("canvas").style.display="none";
+		var modal = $(this)
+        modal.find('.modal-body #Item-no').text(codeResult)
+		modal.find('.modal-body #qty').val('')
+    })
+
+    $('#ErrorModal').on('hidden.bs.modal', function (event) {
+		document.getElementById("canvas").style.display="";
+		video.play();
+		lastcode='';
+    })
+
+    $('#ItemModal').on('hidden.bs.modal', function (event) {
+		document.getElementById("canvas").style.display="";
+		video.play();
+		lastcode='';
+    })	
+	
+	function lighton()
+	{
+		track.applyConstraints({ advanced: [{torch: true}] });
+	}
+
+  </script>
+</body>
+</html>

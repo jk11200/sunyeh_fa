@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="big5">
+  <meta http-equiv="expires" content="Mon,01 Jan 2007 00:00:00 GMT">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>財產盤點查詢</title>
+
+  	<link type="text/css" rel="stylesheet" href="./emis_fa/bootstrap/3.3.7/css/bootstrap.css">
+	<link type="text/css" rel="stylesheet" href="./emis_fa/css/docs.css">
+    <link rel="stylesheet" type="text/css" href="./emis_fa/css/dataTables.bootstrap.css">
+    <style type="text/css" class="init"></style>
+	<style><!$MG_Style_Body></style>
+	
+	<script type="text/javascript" language="javascript" src="./emis_fa/js/jquery.js"></script>
+	<script src="./emis_fa/js/jquery-3.4.0.min.js"></script>
+    <script type="text/javascript" language="javascript" src="./emis_fa/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" language="javascript" src="./emis_fa/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript" language="javascript" src="./emis_fa/js/jquery-editable-select.js"></script>	
+
+</head>
+
+<body>
+<input type="text" id="CTL_NO" style="display:none" value="<!$MG_CTL_NO>">
+<input type="text" id="Inventory_NO" style="display:none" value="<!$MG_Inventory_NO>">
+<input type="text" id="Inventory_Type" style="display:none" value="<!$MG_Inventory_Type>">
+
+
+
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+   <div class="navbar-header">
+      <a class="navbar-brand" href="#"><!$MG_Navbar_brand></a>
+	  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu-navbar-collapse">
+         <span class="sr-only">Change</span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+      </button>      
+	</div>
+   
+   <div class="collapse navbar-collapse" id="menu-navbar-collapse">
+      <ul class="nav navbar-nav">
+         <!$MG_Navbar_1>
+         <!$MG_Navbar_2>
+		 <!$MG_Navbar_3>
+		 <!$MG_Navbar_4>
+		 <!$MG_Navbar_5>
+		 <!$MG_Navbar_6>
+      </ul>
+   </div>
+</nav>
+<!--
+<span class="glyphicon glyphicon-ok " style="color:green" aria-hidden="true"><span class="hide">Close</span></span>
+<span class="glyphicon glyphicon-remove " style="color:blue" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-edit " style="color:red" aria-hidden="true"></span>
+-->
+<h3 class="page-header"><!$MG_WorkingTittle>  <button id='btFinish' class='btn btn-danger btn-sl dt-finish' style="display:<!$MG_Show_Finish_Button>" >盤點完成</button></h3>
+
+ <table id="id-bootstrap-table" class="table table-striped table-bordered" style="width:100%">
+    <thead >
+      <tr >		
+         <th >財產編號</th>
+         <th >財產名稱</th>
+         <th >放置地點</th>
+		 <th >帳載數</th>
+		 <th >初盤</th>
+		 <th >初盤數</th>		 
+		 <th >初盤異常原因</th>
+		 <th >複盤</th>
+		 <th >複盤數</th>
+		 <th >複盤異常原因</th>
+		 <th ></th>
+		 <th ></th>		 
+      </tr>
+   </thead>
+
+ </table> 
+
+ 
+ 
+<!--
+  「data-backdrop="static"」 鎖定背景，點擊背景時不自動關閉視窗
+  「fade」 淡入、淡出的轉場效果
+  「modal-lg」視窗大小，如modal-lg、modal-md、modal-sm
+  「data-dismiss="modal"」 關閉視窗
+  「data-keyboard="true"」 是否用ESC鍵關閉，預設為true
+-->
+
+<div id="ItemModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ItemModalLabel" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h3 class="modal-title" id="ItemModalLabel">盤點異常輸入</h4>
+            </div>
+            <div class="modal-body">
+                <form name="ItemModalForm">
+					<div class="form-group">
+					<h4>
+                        <label for="Item-no" class="control-label">財產編號:</label>
+                        <type="text"  id="Item-no">
+					</h4>
+                    </div>
+					<div class="form-group">
+					<h4>
+                        <label for="Item-name" class="control-label">財產名稱:</label>
+                        <type="text"  id="Item-name">
+                    </h4>
+					</div>
+					<h4>
+					
+                    <div class="form-group">
+                        <label class="control-label" >異常原因:</label>
+						<select id="reason-select"> 
+						<!$MG_Option_List>						 
+						</select> 
+					</div>
+					<div class="form-group">
+                        <!--<label for="qty-text" class="control-label" ">異常原因:</label>-->
+                        <input type="text" id="reason" style="width:80%" disabled="true" placeholder="請輸入盤點異常原因">
+                    </div>
+					
+					</h4>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="submitForm" href="#" onclick="fInventory(reason.value);">　確　定　</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">　取　消　</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ItemInfo" class="modal fade"  tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ItemInfoLabel" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+		<h3>
+        <div class="modal-title ">
+          標題列
+        </div>
+		</h3>
+      </div>
+	  <h4>
+      <div class="modal-body" >         
+      </div>
+	  </h4>
+      <div class="modal-footer" >
+        <button type="button" class="btn btn-default" data-dismiss="modal">　確　定　</button>
+        
+      </div>
+    </div>
+  </div>
+</div>  
+
+<div id="ErrorModal" class="modal fade"  tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ErrorModalLabel" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-lg" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+		<h2>
+        <div class="modal-title ">
+         
+        </div>
+		</h2>
+      </div>
+	  <h3>
+      <div class="modal-body" >
+         內容
+      </div>
+	  </h3>
+      <div class="modal-footer" >
+        <button type="button" class="btn btn-default" data-dismiss="modal">　確　定　</button>
+        
+      </div>
+    </div>
+  </div>
+</div>  
+
+
+<script src="./emis_fa/js/common.js?20190723"></script>  
+<!--<script src="./emis_fa/js/jquery-3.4.0.min.js"></script>  -->
+<script src="./emis_fa/bootstrap/3.3.7/js/bootstrap.min.js"></script>  
+
+  
+<script>
+window.history.forward(1);
+
+var dataSet=
+[
+	<!$MGREPEAT>
+	[ '<!$MG_ItemNo>','<!$MG_ItemName>','<!$MG_ItemPlace>','<!$MG_ItemQty>','<!$MG_ItemFirst>','<!$MG_ItemFirstQty>','<!$MG_ItemFirstReason>','<!$MG_ItemSecond>','<!$MG_ItemSecondQty>','<!$MG_ItemSecondReason>']<!$MG_DataSetCom>
+	<!$MGENDREPEAT>
+];
+
+var error_message='';
+var table = "";
+var rowData ="";
+var rowIndex=0;
+
+
+//$("#optionsRadios1").click(function() {$("#reason").prop("disabled", true);});
+//$("#optionsRadios2").click(function() {$("#reason").prop("disabled", false);});
+
+
+
+$(document).ready(function() {	
+
+    table=$('#id-bootstrap-table').DataTable(
+		{
+			"data": dataSet,
+		//	"paging": false,
+			"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+			 "pageLength": 25,
+		//	"autoWidth": true,
+			"columnDefs": [
+				{"targets": -2,"data": null,"defaultContent": "<button class='btn btn-info btn-xs dt-edit'  ><i class='fa fa-pencil'></i>回 報</button>"},
+				{"targets": -1,"data": null,"defaultContent": "<button class='btn btn-warning btn-xs dt-info'  ><i class='fa fa-pencil'></i>明 細</button>"},
+				{ "orderable": false, "targets": [10,11] },				
+				{ "visible": <!$MG_Show_ItemQty>          , "targets": 3},
+				{ "visible": <!$MG_Show_ItemFirst>        , "targets": 4},
+				{ "visible": <!$MG_Show_ItemFirstQty>     , "targets": 5},
+				{ "visible": <!$MG_Show_ItemFirstReason>  , "targets": 6},
+				{ "visible": <!$MG_Show_ItemSecond>       , "targets": 7},
+				{ "visible": <!$MG_Show_ItemSecondQty>    , "targets": 8},
+				{ "visible": <!$MG_Show_ItemSecondReason> , "targets": 9},
+				{ "visible": <!$MG_Show_ItemReportButton> , "targets": 10},
+				{ "visible": <!$MG_Show_ItemDetailButton> , "targets": 11},
+				{ "targets": [4,7,10,11], "className": "text-center", "width": "5%"}
+			],	
+
+		columns: 
+		[		 	
+			{   "tittle": '財產編號' },
+			{   "tittle": '財產名稱' },
+			{   "tittle": '放置地點'  },
+			{   "tittle": '帳載數'  },
+			{   "tittle": '初盤'  },
+			{   "tittle": '初盤數'  },
+			{   "tittle": '初盤異常原因'  },
+			{   "tittle": '複盤'  },
+			{   "tittle": '複盤數'  },
+			{   "tittle": '複盤異常原因'  },
+			{	"tittle": ""			},
+			{	"tittle": ""			}		
+		]	
+	}
+);
+
+    $('#btFinish').on( 'click', function () {
+        //alert ('財產編號: [] 尚未完成初盤作業!');
+		error_message = '財產編號: [] 尚未完成初盤作業!'
+		$('#ErrorModal').modal('show');
+		CheckInventory();
+    } );
+
+
+    $('#id-bootstrap-table tbody').on( 'click', '.dt-edit', function () {
+        rowData = table.row( $(this).parents('tr') ).data();
+		rowIndex = table.row( $(this).parents('tr') ).index();
+
+		var Inventory_Type = document.getElementById("Inventory_Type").value;
+		var firstStat = rowData[4];
+		var n = firstStat.indexOf('<span class="hide">Y</span>');
+		
+		if ( Inventory_Type=='B' && n <= 0 )
+			{
+				error_message = '財產編號: ['+rowData[0]+'] 尚未完成初盤作業!'
+				$('#ErrorModal').modal('show');
+				//alert ('財產編號: ['+rowData[0]+'] 尚未完成初盤作業!');
+			} else
+			{
+				$('#ItemModal').modal('show');
+			}	
+    } );
+
+
+	$('#ItemModal').on('show.bs.modal', function (event) {
+		var modal = $(this);
+		
+		modal.find('.modal-body #Item-no').text(rowData[0]);
+		modal.find('.modal-body #Item-name').text(rowData[1]);
+		var SelectedVal = "A";
+		$('#reason-select').val(SelectedVal);
+		
+		var element = document.getElementById("reason-select");
+		var selected= element.options[element.selectedIndex].text;
+		modal.find('.modal-body #reason').val(selected);
+		$("#reason").prop("disabled", true);
+	});	
+
+    $('#id-bootstrap-table tbody').on( 'click', '.dt-info', function () {
+        rowData = table.row( $(this).parents('tr') ).data();
+        //alert( rowData[0] +"'s salary is: "+ rowData[ 5 ] );
+		$('#ItemInfo').modal('show');
+    } );
+
+	$('#ItemInfo').on('show.bs.modal', function (event) {
+		var modal = $(this);
+		modal.find('.modal-title').text("財產明細")		
+		$('div.modal-body').append('財產編號 : '+rowData[0]+'<br/>');		
+		$('div.modal-body').append('財產名稱 : '+rowData[1]+'<br/>');
+		$('div.modal-body').append('放置地點 : '+rowData[2]+'<br/>');
+		$('div.modal-body').append('庫存數量 : '+rowData[3]+'<br/>');
+		$('div.modal-body').append('<hr/>');
+		$('div.modal-body').append('初盤數量 : '+rowData[5]+'<br/>');
+		$('div.modal-body').append('異常原因 : '+rowData[6]+'<br/>');
+		$('div.modal-body').append('<hr/>');
+		$('div.modal-body').append('複盤數量 : '+rowData[8]+'<br/>');
+		$('div.modal-body').append('異常原因 : '+rowData[9]+'<br/>');
+	});	
+	$('#ItemInfo').on('hidden.bs.modal', function (evt) {
+		$('.modal .modal-body').empty();
+	});
+	
+
+	$('#reason-select').change(function() {
+		
+		var element = document.getElementById("reason-select");
+		var selected= element.options[element.selectedIndex].text;
+		$("#reason").val(selected);
+	
+		if ($(this).val() == "Z") 
+		{
+		$("#reason").val("");
+		$("#reason").prop("disabled", false);
+		$("#reason").focus();
+		}
+		else
+		{
+		$("#reason").prop("disabled", true);
+		}
+	});
+
+    $('#ErrorModal').on('show.bs.modal', function (event) {
+		var modal = $(this)
+        <!--modal.find('.modal-title').text(codeResult)-->
+		modal.find('.modal-body').text(error_message);
+    });
+
+
+});
+
+
+
+function fInventory(Reason)
+{
+	var QQQ = Reason.trim();
+//	alert (QQQ.length);
+	if (QQQ==0)
+	{
+//這個訊息是在MODAL上後的警示.直接用[alert]就可以了
+		alert("請輸入盤點異常原因!");
+		eval("document.ItemModalForm['reason'].focus()"); 
+		return false;
+	} 
+	else 
+	{	
+		verifyxmlhttp=GetXmlHttpObject();
+		if (verifyxmlhttp==null) {return;}
+		var url=PRG_URL()+"WriteReason&arguments=-A"+document.getElementById("CTL_NO").value+",-A"+rowData[0]+",-A"+Reason+",-A"+Math.random();
+		verifyxmlhttp.open("GET",url,true);	//async request
+		verifyxmlhttp.send(null);
+		 
+		$("#ItemModal").modal('hide');
+		//alert( rowData[0] +"'s salary is: "+ rowData[ 5 ] );
+		//table.row( this ).delete();
+		//table.row($(this).parents('tr')).remove().draw();  
+		table.row(rowIndex).remove().draw( false );
+	}		
+}
+
+
+
+
+function CheckInventory(qrcode)
+{ 
+verifyxmlhttp=GetXmlHttpObject();
+if (verifyxmlhttp==null) {return;}
+var url=PRG_URL()+"CheckInventory&arguments=-A"+document.getElementById("CTL_NO").value+",-A"+qrcode+",-A"+Math.random();
+verifyxmlhttp.onreadystatechange=CheckverifystateChanged;
+verifyxmlhttp.open("GET",url,true);	//async request
+verifyxmlhttp.send(null); 
+
+}	
+	
+function CheckverifystateChanged()
+{
+	if (verifyxmlhttp.readyState==4)
+	{
+		if (verifyxmlhttp.status == 200) 
+		{
+			if (verifyxmlhttp.responseText=='Inventory_not_finish')
+			{
+			error_message='尚有財產未完成盤點作業!'
+			$('#ErrorModal').modal('show');				    
+			}
+			else if (verifyxmlhttp.responseText=='Inventory_finish')
+			{
+			error_message='財產盤點作業已完成!'
+			$('#ErrorModal').modal('show');			
+			}
+		}
+	}
+}
+		
+  </script>
+</body>
+</html>

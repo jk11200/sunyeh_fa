@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	
+	<meta charset="big5">
+	<meta http-equiv="expires" content="Mon,01 Jan 2007 00:00:00 GMT">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>財產盤點系統登入</title>
+	
+	<link type="text/css" rel="stylesheet" href="./emis_fa/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link type="text/css" rel="stylesheet" href="./emis_fa/css/login.css">
+	<link type="text/css" rel="stylesheet" href="./emis_fa/css/docs.css">
+
+<script type="text/javascript" src="./emis_fa/js/common.js"></script>
+</head>
+<body>
+
+<header class="jumbotron subhead" id="overview">
+    <div class="container">
+        <h3>聯晟資訊管理股份有限公司</h3>
+        <p class="lead"><!$MG_SubTittle></p>
+    </div>
+</header>
+
+<div class="container login-form">
+	<h2 class="login-title">- <!$MG_LoginTypeName> -</h2>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<form onkeypress="if(enter_pressed(event)){ formSubmit();return false; }">
+				<div class="input-group login-userinput">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+					<input id="txtUser" type="text" class="form-control" name="username" placeholder="使用者帳號">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+					<input  id="txtPassword" type="password" class="form-control" name="password" placeholder="密碼">
+					<span id="showPassword" class="input-group-btn">
+					<button class="btn btn-default reveal" type="button"><i class="glyphicon glyphicon-eye-open"></i></button>
+					</span>  
+				</div>
+				<button class="btn btn-primary btn-block login-button" type="button" href="javascript:void();" onclick="formSubmit()" ><i class="glyphicon glyphicon-log-in"></i> 登 入 系 統 </button>
+				<!-- 
+				<div class="checkbox login-options">
+					<label><input type="checkbox"/> Remember Me</label>
+					<a href="#" class="login-forgot">Forgot Username/Password?</a>
+				</div>	
+				-->
+			</form>			
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript" src="./emis_fa/js/jquery-3.4.0.min.js"></script>
+<script type="text/javascript" src="./emis_fa/js/login.js"></script>
+
+<script type="text/javascript">
+ window.history.forward(1);
+
+function formSubmit()
+  {
+  VerifyLogin(document.getElementById("txtUser").value,document.getElementById("txtPassword").value,'<!$MG_InventoryNo>','<!$MG_Type>','<!$MG_CTL_NO>');  
+  }
+  
+</script>
+
+
+</body>
+</html>
