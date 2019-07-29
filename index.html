@@ -1,36 +1,44 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-	
-	<meta charset="big5">
-	<meta http-equiv="expires" content="Mon,01 Jan 2007 00:00:00 GMT">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-	<title>財產盤點系統登入</title>
-	
-
-<script type="text/javascript" src="./emis_fa/js/common.js"></script>
+    <title>jMovies</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="JS/cordova-1.8.1.js"></script>
+    <link rel="stylesheet" href="CSS/jquery.mobile-1.1.0.min.css" />
+    <script type="text/javascript" src="JS/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="JS/jquery.mobile-1.1.0.min.js"></script>
+    <!-- style 防止頭尾標題，字被吃掉 -->
+    <style>
+        .ui-header .ui-title, .ui-footer .ui-title
+        {
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+        }
+    </style>
 </head>
+
 <body>
+    <div data-role="page">
+        <!--頭-->
+        <div data-role="header">
+            <h1>
+                輕鬆上手 jQuery</h1>
+        </div>
+        <!--身體-->
+        <div data-role="content">
+            <!--================================================================================-->
+             <p>HKT線上教學教室-完全免費</p>       
+            <a href="Kinect_tutorial.html" data-role="button">Kinect 教學</a>           
 
-<header class="jumbotron subhead" id="overview">
-    <div class="container">
-        <h3>聯晟資訊管理股份有限公司</h3>
-        <p class="lead"><!$MG_SubTittle></p>
+            <a href="jQuery_tutorial.html" data-role="button">jQuery 教學</a>
+            <!--================================================================================-->
+        </div>
+        <!--腳-->
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                TW-HKT 程式●城市●人
+            </h4>
+        </div>
     </div>
-</header>
-
-<div class="container login-form"><h2 class="login-title">- <!$MG_LoginTypeName> -</h2>
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<button  type="button" href="https://tw.yahoo.com" ><i class="glyphicon glyphicon-log-in"></i> 登 入 系 統 </button>
-			  <a href="https://tw.yahoo.com" data-role="button">jQuery 教學</a>
-			
-		</div>
-	</div>
-</div>
-
-
-
 </body>
 </html>
