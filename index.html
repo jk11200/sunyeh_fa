@@ -1,47 +1,47 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <title>jMovies</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-	
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://192.168.1.99:433 [你的資料庫主機，如http://www.bggcs.com] 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
-	
-    <script type="text/javascript" src="JS/cordova-1.8.1.js"></script>
-    <link rel="stylesheet" href="CSS/jquery.mobile-1.1.0.min.css" />
-    <script type="text/javascript" src="JS/jquery-1.6.4.min.js"></script>
-    <script type="text/javascript" src="JS/jquery.mobile-1.1.0.min.js"></script>
-    <!-- style 防止頭尾標題，字被吃掉 -->
-    <style>
-        .ui-header .ui-title, .ui-footer .ui-title
-        {
-            margin-right: 0 !important;
-            margin-left: 0 !important;
-        }
-    </style>
-</head>
+function init() {
+    document.addEventListener("deviceready", deviceReady, true);
+    delete init;
+}
 
-<body>
-    <div data-role="page">
-        <!--頭-->
-        <div data-role="header">
-            <h1>
-                輕鬆上手 jQuery</h1>
-        </div>
-        <!--身體-->
-        <div data-role="content">
-            <!--================================================================================-->
-             <p>HKT線上教學教室-完全免費</p>       
-            <a href="https://192.168.1.99:433/MagicScripts/MGrqispi.dll?appname=emis_fa&prgname=Login&arguments=,-AA,-AW20190614500" data-role="button">Kinect 教學</a>           
-<a href="https://tw.yahoo.com" data-role="button">yahoo</a>           
-            <a href="jQuery_tutorial.html" data-role="button">jQuery 教學</a>
-            <!--================================================================================-->
-        </div>
-        <!--腳-->
-        <div data-role="footer" data-position="fixed">
-            <h4>
-                TW-HKT 程式●城市●人
-            </h4>
-        </div>
-    </div>
-</body>
-</html>
+
+function checkPreAuth() {
+	var form = $("#loginForm");
+	if(window.localStorage["username"] != undefined && window.localStorage["password"] != undefined) {
+		$("#username", form).val(window.localStorage["username"]);
+		$("#password", form).val(window.localStorage["password"]);
+		handleLogin();
+	}
+}
+
+function handleLogin() {
+	var form = $("#loginForm");	
+	//disable the button so we can't resubmit while we wait
+	$("#submitButton",form).attr("disabled","disabled");
+	var u = $("#username", form).val();
+	var p = $("#password", form).val();
+	console.log("click");
+	if(u != '' && p!= '') {
+		$.post("https://www.coldfusionjedi.com/demos/2011/nov/10/service.cfc?method=login&returnformat=json", {username:u,password:p}, function(res) {
+			if(res == true) {
+				//store
+				window.localStorage["username"] = u;
+				window.localStorage["password"] = p;        			
+				$.mobile.changePage("some.html");
+			} else {
+				navigator.notification.alert("Your login failed", function() {});
+			}
+	    	$("#submitButton").removeAttr("disabled");
+		},"json");
+	} else {
+		//Thanks Igor!
+		navigator.notification.alert("You must enter a username and password", function() {});
+		$("#submitButton").removeAttr("disabled");
+	}
+	return false;
+}
+
+function deviceReady() {
+	
+    $("#loginForm").on("submit",handleLogin);
+
+}
