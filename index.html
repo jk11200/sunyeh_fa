@@ -6,97 +6,57 @@
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<title>Auth Demo</title>
 	<link rel="stylesheet" href="jquery.mobile/jquery.mobile-1.0rc2.css" type="text/css" charset="utf-8" />
-	<script type="text/javascript" src="js/jquery-1.7.min.js"></script>
+	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/phonegap-1.2.0.js"></script>
 	<script src="jquery.mobile/jquery.mobile-1.0rc2.js"></script>
 	
 </head>
 
-<body onload="init()">
+<body >
 	
-<div id="loginPage" data-role="page">
-
-	<div data-role="header">
-		<h1>Auth Demo</h1>
-	</div>
-
-	<div data-role="content">	
-
-		<form id="loginForm">
-		<div data-role="fieldcontain" class="ui-hide-label">
-			<label for="username">Username:</label>
-			<input type="text" name="username" id="username" value="" placeholder="Username" />
-		</div>
-
-		<div data-role="fieldcontain" class="ui-hide-label">
-			<label for="password">Password:</label>
-			<input type="password" name="password" id="password" value="" placeholder="Password" />
-		</div>
-
-		<input type="submit" value="Login" id="submitButton">
-		</form>
-		
-	</div>
-
-	<div data-role="footer">
-		<h4>© Camden Enterprises</h4>
-	</div>
-
+<div data-role="page">
+  <div role="main" class="ui-content">
+    <form>
+      <label>Account</label>
+      <input type="text" name="account" placeholder="account" value="">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="pssaword" value="">
+      <button type="submit" class="ui-btn">送出</button>
+	  <a href="#" onclick="window.open(' http://tw.yahoo.com ', 'Yahoo', config='height=500,width=500');">開新視窗</a>
+    </form>
+  </div>
 </div>
 
 <script>
-    $("#loginPage").live("pageinit", function(e) {
-		checkPreAuth();
-	});
-	
-	
-	function init() {
-    document.addEventListener("deviceready", deviceReady, true);
-    delete init;
-}
+ (function () {
+    "use strict";
 
+    document.addEventListener('deviceready', onDeviceReady.bind(this), false);
 
-function checkPreAuth() {
-	var form = $("#loginForm");
-	if(window.localStorage["username"] != undefined && window.localStorage["password"] != undefined) {
-		$("#username", form).val(window.localStorage["username"]);
-		$("#password", form).val(window.localStorage["password"]);
-		handleLogin();
-	}
-}
+    function onDeviceReady() {
+    };
 
-function handleLogin() {
-	var form = $("#loginForm");	
-	//disable the button so we can't resubmit while we wait
-	$("#submitButton",form).attr("disabled","disabled");
-	var u = $("#username", form).val();
-	var p = $("#password", form).val();
-	console.log("click");
-	if(u != '' && p!= '') {
-		$.post("https://192.168.1.99:433/MagicScripts/MGrqispi.dll?appname=emis_fa&prgname=Login&arguments=,-AA,-AW20190614500", function(res) {
-			if(res == true) {
-				//store
-				window.localStorage["username"] = u;
-				window.localStorage["password"] = p;        			
-				$.mobile.changePage("some.html");
-			} else {
-				navigator.notification.alert("Your login failed", function() {});
-			}
-	    	$("#submitButton").removeAttr("disabled");
-		},"json");
-	} else {
-		//Thanks Igor!
-		navigator.notification.alert("You must enter a username and password", function() {});
-		$("#submitButton").removeAttr("disabled");
-	}
-	return false;
-}
+    //按下送出按鈕後，將帳號及密碼送到Server端做驗證
+    $(document).on("submit", "form", function () {
+        $.ajax({
+            url: "https://192.168.1.99:433/MagicScripts/MGrqispi.dll?appname=emis_fa&prgname=Login",  //如http://www.bggcs.com/app/member.php
+            type: "POST",
+            data: $(this).serialize(),  //使用者輸入的表單資料
+            //無法將資料傳送到Server端時，會顯示錯誤訊息
+            error: function () {
+                alert("傳送錯誤！");
+            },
+            //成功傳送資料後，以JSON格式接收資料
+            success: function (msg) {
+                var msg = JSON.parse(msg);
+                alert(msg.message);
+            }
+        });
 
-function deviceReady() {
-	
-    $("#loginForm").on("submit",handleLogin);
+        return false;
+    });
 
-}
+})();
 </script>
 
 </body>
